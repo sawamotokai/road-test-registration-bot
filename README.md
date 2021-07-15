@@ -6,10 +6,10 @@ The script scrapes the ICBC driving license office's website and sends en email 
 
 ## Tech stack
 
-### - Node.js
-
-- Puppeteer
-- SendGrid
+- ### Node.js
+  - Puppeteer
+  - SendGrid/mail
+  - dotenv
 
 ## TODO user stories
 
