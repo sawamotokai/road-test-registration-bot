@@ -11,7 +11,7 @@ The script scrapes the ICBC driving license office's website and sends en SMS me
 
 ## Usage
 
-- Run the following commands
+- Run the following commands in your terminal
   1. `git clone https://github.com/sawamotokai/road-test-registration-bot.git` to download the code.
   2. `cd road-test-registration-bot` to move into the directory.
   3. `npm install` to install dependancies.
@@ -27,6 +27,7 @@ The script scrapes the ICBC driving license office's website and sends en SMS me
   | LICENSE_NUMBER | Your license number. | 1234567 |
   | PASS_PHRASE | Your key word you registered for your license. | Word |
   | NOW_APPO | Your current latest appointment. Only appointments before this date will be notified. | 2021-08-15 |
+- ### Run the starting command `node index.js`
 
 ## Tech stack
 
