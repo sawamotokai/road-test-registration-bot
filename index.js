@@ -3,23 +3,37 @@ const moment = require("moment");
 require("dotenv").config();
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
-const client = require("twilio")(accountSid, authToken);
+const lastName = process.env.LAST_NAME;
+const licenseNumber = process.env.LICENSE_NUMBER;
+const passPhrase = process.env.PASS_PHRASE;
+const NOW_APPO = process.env.NOW_APPO;
+const PHONE_NUMBER = process.env.PHONE_NUMBER;
+const TWILIO_NUMBER = process.env.TWILIO_NUMBER;
 
+const client = require("twilio")(accountSid, authToken);
+var notFound = true;
 (async () => {
-  const width = 1024;
-  const height = 1600;
   const browser = await puppeteer.launch({
-    defaultViewport: { width: width, height: height },
+    defaultViewport: {
+      width: 1200,
+      height: 800,
+    },
     headless: false,
   });
   const page = await browser.newPage();
+  while (notFound) {
+    await run(page);
+  }
+})();
+
+async function run(page) {
   await page.goto(
     "https://onlinebusiness.icbc.com/webdeas-ui/login;type=driver"
   );
   // login
-  await page.type("#mat-input-0", "Sawamoto");
-  await page.type("#mat-input-1", "3265393");
-  await page.type("#mat-input-2", "Atom");
+  await page.type("#mat-input-0", lastName);
+  await page.type("#mat-input-1", licenseNumber);
+  await page.type("#mat-input-2", passPhrase);
   await page.waitForSelector("#mat-checkbox-1-input");
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
@@ -45,7 +59,7 @@ const client = require("twilio")(accountSid, authToken);
   await buttons[0].click();
 
   // type vancouver
-  await page.type("#mat-input-3", "Vancouver");
+  await page.type("#mat-input-3", "Vancouver, ");
   // await page.select("#mat-input-3");
   await page.waitForTimeout(4000);
   await page.keyboard.press("Enter");
@@ -61,28 +75,35 @@ const client = require("twilio")(accountSid, authToken);
   console.log(links.length);
   const indices = [0, 1, 3];
 
+  let count = 1;
   while (true) {
+    if (count % 350 == 0) {
+      return;
+    }
+    console.log(`trial: ${count}`);
+    count++;
     for (let i = 0; i < 3; i++) {
-      await links[indices[i]].click();
-      await page.waitForTimeout(1000);
+      let toClick = links[indices[i]];
+      await toClick.click();
+      await page.waitForTimeout(1500);
       let date = await page.$$(".date-title");
       date = date[0];
       if (!date) continue;
       const dateText = await date.evaluate((node) => node.innerText);
       console.log(dateText);
-      const nowAppo = moment("2021-11-08");
+      const nowAppo = moment(NOW_APPO);
       const nextAppo = moment(dateText, "dddd, MMMM Do, YYYY");
       if (nowAppo > nextAppo) {
         console.log("earlier appointment was found");
+        notFound = false;
         const message = await client.messages.create({
           body: "New appointmnet was found!",
-          from: "+19493862391",
-          to: "+16729996944",
+          from: TWILIO_NUMBER,
+          to: PHONE_NUMBER,
         });
         console.log(message.sid);
-        await browser.close();
-        process.exit(0);
+        return;
       }
     }
   }
-})();
+}
