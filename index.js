@@ -94,6 +94,7 @@ async function run(page) {
       console.log(dateText);
       const nowAppo = moment(NOW_APPO);
       const nextAppo = moment(dateText, "dddd, MMMM Do, YYYY");
+
       if (nowAppo > nextAppo) {
         console.log("earlier appointment was found");
         notFound = false;
@@ -103,6 +104,23 @@ async function run(page) {
           to: PHONE_NUMBER,
         });
         console.log(message.sid);
+        // click on latest appointment
+        buttons = await page.$$("mat-button-toggle");
+        await buttons[0].click();
+
+        // click on Review appointmnet
+        buttons = await page.$$("button.mat-raised-button.primary");
+        await buttons[1].click();
+
+        // click on Next
+        await page.waitForTimeout(1000);
+        const button = await page.$("button.primary.collapsible-action-button");
+        await button.click();
+
+        // send verification code
+        await page.waitForTimeout(1000);
+        buttons = await page.$$("button");
+        await buttons[buttons.length - 1].click();
         return;
       }
     }
