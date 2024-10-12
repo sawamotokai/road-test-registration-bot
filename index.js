@@ -21,47 +21,48 @@ var notFound = true;
     headless: false,
   });
   const page = await browser.newPage();
-  while (notFound) {
-    await run(page);
-  }
+  // while (notFound) {
+  await run(page);
+  // }
 })();
 
 async function run(page) {
   await page.goto(
-    "https://onlinebusiness.icbc.com/webdeas-ui/login;type=driver"
+    "https://onlinebusiness.icbc.com/webdeas-ui/login;type=driver",
   );
   // login
   await page.type("#mat-input-0", lastName);
   await page.type("#mat-input-1", licenseNumber);
   await page.type("#mat-input-2", passPhrase);
   await page.waitForSelector("#mat-checkbox-1-input");
+  await page.evaluate(() => {
+    document.querySelector("#mat-checkbox-1-input").parentElement.click();
+  });
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   await page.keyboard.press("Space");
   await page.screenshot({ path: "before.png" });
-  let buttons = await page.$$("[type=button]");
-  await buttons[1].click();
+
   await page.waitForNavigation();
+
   // select reschedule appointmnet
-  await page.waitForSelector(
-    ".raised-button.mat-raised-button.mat-button-base.mat-accent"
-  );
-  buttons = await page.$$(
-    ".raised-button.mat-raised-button.mat-button-base.mat-accent"
-  );
-  await buttons[0].click();
+  await page.waitForTimeout(1000);
+
+  let buttons = await page.$$("button");
+
+  await buttons[3].click();
 
   // yes on the confirmation screen
   await page.waitForTimeout(1000);
-  buttons = await page.$$(
-    ".mat-raised-button.mat-button-base.mat-accent.ng-star-inserted"
-  );
-  await buttons[0].click();
+  buttons = await page.$$("button");
+  await buttons[6].click();
 
   // type vancouver
   await page.type("#mat-input-3", "Vancouver, ");
-  // await page.select("#mat-input-3");
-  await page.waitForTimeout(4000);
+  await page.waitForTimeout(2000);
   await page.keyboard.press("Enter");
   await page.waitForTimeout(2000);
   await page.keyboard.press("Enter");
@@ -69,20 +70,20 @@ async function run(page) {
   await page.keyboard.press("Enter");
   await page.waitForTimeout(1000);
 
-  await page.waitForSelector(".department-container.ng-star-inserted");
-  const links = await page.$$(".department-container.ng-star-inserted");
+  await page.waitForSelector(".right-arrow");
+  const links = await page.$$(".right-arrow");
   await page.waitForTimeout(2000);
-  console.log(links.length);
-  const indices = [0, 1, 3];
+  console.log(links);
+  const indices = [0, 1, 2, 3, 4];
 
   let count = 1;
   while (true) {
-    if (count % 350 == 0) {
-      return;
-    }
+    // if (count % 350 == 0) {
+    //   return;
+    // }
     console.log(`trial: ${count}`);
     count++;
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 5; i++) {
       let toClick = links[indices[i]];
       await toClick.click();
       await page.waitForTimeout(1500);
